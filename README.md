@@ -1,4 +1,4 @@
-![alt text](https://media1.giphy.com/media/kFOKXrYDZj8MfwLJp9/giphy.gif)
+![alt text](https://media1.giphy.com/media/kFOKXrYDZj8MfwLJp9/giphy.gif)<br>
 ..¶¶¶¶¶¶¶¶7………………………………$¶¶¶¶¶$<br />
 ….¶¶¶¶¶¶¶¶¶¢…………………………¶¶¶¶¶¶¶$<br />
 ….ø¶¶¶¶¶$¶¶¶¶……………………..¢¶¶¶¶¶¶¶$<br />
