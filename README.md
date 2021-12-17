@@ -1,3 +1,4 @@
+![alt text](https://media1.giphy.com/media/kFOKXrYDZj8MfwLJp9/giphy.gif)
 ..¶¶¶¶¶¶¶¶7………………………………$¶¶¶¶¶$<br />
 ….¶¶¶¶¶¶¶¶¶¢…………………………¶¶¶¶¶¶¶$<br />
 ….ø¶¶¶¶¶$¶¶¶¶……………………..¢¶¶¶¶¶¶¶$<br />
@@ -22,4 +23,3 @@
 ………………….7¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶<br />
 …………………………o¶¶¶¶¶¶¶¶¶¶¶¶¶¶¶<br />
 ……………………………¶¶¶¶¶¶¶¶¶¶¶¶¶1<br />
-![alt text](https://media1.giphy.com/media/kFOKXrYDZj8MfwLJp9/giphy.gif)
