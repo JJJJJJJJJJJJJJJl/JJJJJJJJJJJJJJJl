@@ -17,7 +17,7 @@
         android:label="Instagram Time Monitor"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        android:theme="@style/Theme.InstagramMonitor">
 
         <activity
             android:name=".MainActivity"
