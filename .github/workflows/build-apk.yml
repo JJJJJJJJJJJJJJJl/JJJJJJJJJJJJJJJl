@@ -1,0 +1,56 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ claude/instagram-time-alert-xAKhg ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build APK
+      run: ./gradlew assembleDebug --stacktrace
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: instagram-monitor-apk
+        path: app/build/outputs/apk/debug/app-debug.apk
+
+    - name: Create Release
+      if: github.event_name == 'push'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: build-${{ github.run_number }}
+        name: Instagram Monitor Build ${{ github.run_number }}
+        body: |
+          📱 Instagram Time Monitor APK
+
+          **How to install:**
+          1. Download `app-debug.apk` below
+          2. Open it on your Android phone
+          3. Allow "Install from unknown sources" if prompted
+          4. Follow the app setup instructions
+
+          **Build info:**
+          - Commit: ${{ github.sha }}
+          - Built: ${{ github.event.head_commit.timestamp }}
+        files: app/build/outputs/apk/debug/app-debug.apk
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
