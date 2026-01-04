@@ -65,14 +65,37 @@
         android:text="Stop Monitoring"
         android:textSize="16sp"
         android:padding="16dp"
+        android:layout_marginBottom="12dp"
         android:backgroundTint="#F44336" />
+
+    <Button
+        android:id="@+id/refreshButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Refresh Debug Info"
+        android:textSize="14sp"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#2196F3" />
+
+    <TextView
+        android:id="@+id/debugText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Debug info will appear here"
+        android:textSize="12sp"
+        android:textColor="#333333"
+        android:padding="12dp"
+        android:background="#E8F5E9"
+        android:fontFamily="monospace"
+        android:layout_marginBottom="16dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="This app monitors when you use Instagram\nand alerts you after 5 minutes."
         android:textSize="14sp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:textColor="#999999"
         android:gravity="center" />
 

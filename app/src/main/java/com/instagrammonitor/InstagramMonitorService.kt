@@ -19,7 +19,7 @@ class InstagramMonitorService : Service() {
     private var isInstagramActive = false
     private var hasAlerted = false
     private val checkInterval = 2000L // Check every 2 seconds
-    private val timeLimit = 5 * 60 * 1000L // 5 minutes in milliseconds
+    private val timeLimit = 30 * 1000L // 30 seconds for testing (change to 5 * 60 * 1000L for 5 minutes)
 
     private val INSTAGRAM_PACKAGE = "com.instagram.android"
     private val CHANNEL_ID = "instagram_monitor_channel"
@@ -54,51 +54,78 @@ class InstagramMonitorService : Service() {
     private fun checkInstagramUsage() {
         val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val currentTime = System.currentTimeMillis()
-        val queryTime = currentTime - 10000 // Look back 10 seconds
 
+        // Get the current foreground app
+        val foregroundApp = getCurrentForegroundApp(usageStatsManager, currentTime)
+        val isInstagramNowInForeground = foregroundApp == INSTAGRAM_PACKAGE
+
+        // Save debug info
+        saveDebugInfo(foregroundApp, isInstagramNowInForeground)
+
+        if (isInstagramNowInForeground) {
+            // Instagram is currently in foreground
+            if (!isInstagramActive) {
+                // Instagram just became active
+                instagramStartTime = currentTime
+                isInstagramActive = true
+                hasAlerted = false
+                updateForegroundNotification(0) // Show "5m 0s remaining"
+            } else {
+                // Instagram is still active, check time
+                val usageTime = currentTime - instagramStartTime
+
+                if (usageTime >= timeLimit && !hasAlerted) {
+                    showAlert(usageTime)
+                    hasAlerted = true
+                } else if (!hasAlerted) {
+                    // Update foreground notification with remaining time
+                    updateForegroundNotification(usageTime)
+                }
+            }
+        } else {
+            // Instagram is not in foreground
+            if (isInstagramActive) {
+                // Instagram was active but now closed
+                isInstagramActive = false
+                hasAlerted = false
+                // Reset notification
+                val notificationManager = getSystemService(NotificationManager::class.java)
+                notificationManager.notify(NOTIFICATION_ID, createForegroundNotification())
+            }
+        }
+    }
+
+    private fun getCurrentForegroundApp(usageStatsManager: UsageStatsManager, currentTime: Long): String? {
+        val queryTime = currentTime - 5000 // Look back 5 seconds
         val usageEvents = usageStatsManager.queryEvents(queryTime, currentTime)
         val event = UsageEvents.Event()
 
-        var instagramInForeground = false
+        var lastForegroundApp: String? = null
+        var lastEventTime = 0L
 
         while (usageEvents.hasNextEvent()) {
             usageEvents.getNextEvent(event)
 
-            if (event.packageName == INSTAGRAM_PACKAGE) {
-                when (event.eventType) {
-                    UsageEvents.Event.MOVE_TO_FOREGROUND -> {
-                        instagramInForeground = true
-                        if (!isInstagramActive) {
-                            // Instagram just became active
-                            instagramStartTime = currentTime
-                            isInstagramActive = true
-                            hasAlerted = false
-                        }
-                    }
-                    UsageEvents.Event.MOVE_TO_BACKGROUND -> {
-                        instagramInForeground = false
-                    }
+            if (event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
+                if (event.timeStamp > lastEventTime) {
+                    lastForegroundApp = event.packageName
+                    lastEventTime = event.timeStamp
                 }
             }
         }
 
-        // If no recent foreground event found, check if we need to reset
-        if (!instagramInForeground && isInstagramActive) {
-            isInstagramActive = false
-            hasAlerted = false
-        }
+        return lastForegroundApp
+    }
 
-        // Check time limit
-        if (isInstagramActive && !hasAlerted) {
-            val usageTime = currentTime - instagramStartTime
-
-            if (usageTime >= timeLimit) {
-                showAlert(usageTime)
-                hasAlerted = true
-            } else {
-                // Update foreground notification with remaining time
-                updateForegroundNotification(usageTime)
-            }
+    private fun saveDebugInfo(foregroundApp: String?, isInstagram: Boolean) {
+        val prefs = getSharedPreferences("InstagramMonitor", Context.MODE_PRIVATE)
+        prefs.edit().apply {
+            putString("last_foreground_app", foregroundApp ?: "none")
+            putBoolean("is_instagram_detected", isInstagram)
+            putLong("last_check_time", System.currentTimeMillis())
+            putBoolean("is_tracking", isInstagramActive)
+            putLong("time_elapsed", if (isInstagramActive) System.currentTimeMillis() - instagramStartTime else 0)
+            apply()
         }
     }
 

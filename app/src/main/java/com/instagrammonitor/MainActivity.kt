@@ -12,18 +12,22 @@ import androidx.appcompat.app.AppCompatActivity
 class MainActivity : AppCompatActivity() {
 
     private lateinit var statusText: TextView
+    private lateinit var debugText: TextView
     private lateinit var startButton: Button
     private lateinit var stopButton: Button
     private lateinit var permissionButton: Button
+    private lateinit var refreshButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         statusText = findViewById(R.id.statusText)
+        debugText = findViewById(R.id.debugText)
         startButton = findViewById(R.id.startButton)
         stopButton = findViewById(R.id.stopButton)
         permissionButton = findViewById(R.id.permissionButton)
+        refreshButton = findViewById(R.id.refreshButton)
 
         updateUI()
 
@@ -43,6 +47,10 @@ class MainActivity : AppCompatActivity() {
 
         stopButton.setOnClickListener {
             stopMonitoringService()
+            updateUI()
+        }
+
+        refreshButton.setOnClickListener {
             updateUI()
         }
     }
@@ -96,5 +104,34 @@ class MainActivity : AppCompatActivity() {
             serviceRunning -> "✓ Monitoring Instagram (5 min limit)"
             else -> "Ready to monitor"
         }
+
+        // Show debug info
+        val prefs = getSharedPreferences("InstagramMonitor", Context.MODE_PRIVATE)
+        val lastForegroundApp = prefs.getString("last_foreground_app", "none")
+        val isInstagramDetected = prefs.getBoolean("is_instagram_detected", false)
+        val lastCheckTime = prefs.getLong("last_check_time", 0)
+        val isTracking = prefs.getBoolean("is_tracking", false)
+        val timeElapsed = prefs.getLong("time_elapsed", 0)
+
+        val timeSinceCheck = if (lastCheckTime > 0) {
+            (System.currentTimeMillis() - lastCheckTime) / 1000
+        } else {
+            0
+        }
+
+        val debugInfo = buildString {
+            appendLine("DEBUG INFO:")
+            appendLine("Last checked: ${timeSinceCheck}s ago")
+            appendLine("Foreground app: $lastForegroundApp")
+            appendLine("Instagram detected: $isInstagramDetected")
+            appendLine("Currently tracking: $isTracking")
+            if (isTracking && timeElapsed > 0) {
+                val minutes = timeElapsed / 60000
+                val seconds = (timeElapsed % 60000) / 1000
+                appendLine("Time on Instagram: ${minutes}m ${seconds}s")
+            }
+        }
+
+        debugText.text = debugInfo
     }
 }
